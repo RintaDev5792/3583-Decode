@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -18,9 +22,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public abstract class Skely extends LinearOpMode {
     public DcMotorEx rfMotor, lfMotor, rbMotor, lbMotor;
-    public Servo clawRotate, clawLeft, clawRight;
-
     public int tolerance = 10;
+    public Limelight3A limelight;
     public int rfDir = 1,
             rbDir = 1,
             lfDir = -1,
@@ -33,11 +36,8 @@ public abstract class Skely extends LinearOpMode {
         driveSpeed = 0.5;
         rfMotor = hardwareMap.get(DcMotorEx.class, "rightFront");//GoBILDA 5202/3/4 series //CH-M1
         lfMotor = hardwareMap.get(DcMotorEx.class, "leftFront");//GoBILDA 5202/3/4 series //CH-M0
-//        rbMotor = hardwareMap.get(DcMotorEx.class, "rightRear");//GoBILDA 5202/3/4 series //CH-M2
+        rbMotor = hardwareMap.get(DcMotorEx.class, "rightRear");//GoBILDA 5202/3/4 series //CH-M2
         lbMotor = hardwareMap.get(DcMotorEx.class, "leftRear");//GoBILDA 5202/3/4 series //CH-M3
-        clawLeft = hardwareMap.servo.get("leftClawServo");
-        clawRight = hardwareMap.servo.get("rightClawServo");
-        clawRotate = hardwareMap.servo.get("angleServo");
 
         rfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lfMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -58,7 +58,9 @@ public abstract class Skely extends LinearOpMode {
         rbMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lbMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+        limelight.start(); // This tells Limelight to start looking!
 
         stopRobot();
     }
@@ -405,7 +407,6 @@ public abstract class Skely extends LinearOpMode {
             sleep(500);
             posDrive(1300,1000);
             sleep(1000);
-            openClaw();
             
 
             /*posDrive(-1150, 1000);
@@ -425,20 +426,6 @@ public abstract class Skely extends LinearOpMode {
         }
     }
 
-    public void openClaw(){
-        clawRotate.setPosition(0.45);
-        sleep(500);
-        clawLeft.setPosition(0.2);
-        clawRight.setPosition(0.8);
-
-    }
-
-    public void closeClaw(){
-        clawRotate.setPosition(0.25);
-        sleep(500);
-        clawLeft.setPosition(0);
-        clawRight.setPosition(1);
-    }
     public boolean posInPlace(){
         return isInPlace(rfMotor) && isInPlace(lfMotor) && isInPlace(rbMotor) && isInPlace(lbMotor);
     }
